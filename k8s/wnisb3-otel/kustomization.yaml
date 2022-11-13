@@ -1,0 +1,19 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: wnisb3-otel
+resources:
+- namespace.yaml
+- deployment.yaml
+- service.yaml
+- ingress.yaml
+- otel.yaml
+configMapGenerator:
+- name: app
+  literals:
+  - app.services.orders=http://orders:8080
+  - app.services.items=http://items:8080
+  - server.port=8080
+  - management.otlp.metrics.export.step=4s
+  - management.otlp.metrics.export.url=http://otel-collector:4318/v1/metrics
+  - management.tracing.sampling.probability=1.0
+  - management.zipkin.tracing.endpoint=http://otel-collector:9411/api/v2/spans

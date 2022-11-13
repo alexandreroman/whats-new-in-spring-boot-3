@@ -1,0 +1,30 @@
+name: wnisb3-otel-orders
+
+on:
+  push:
+    branches:
+    - main
+    - testing
+    paths:
+    - otel/orders/**
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: true
+
+jobs:
+  call-test-app:
+    if: always()
+    uses: ./.github/workflows/_test.yaml
+    with:
+      working-directory: otel
+      module: orders
+
+  call-deploy-image:
+    needs:
+    - call-test-app
+    uses: ./.github/workflows/_deploy.yaml
+    with:
+      working-directory: otel
+      module: orders
+      native: true

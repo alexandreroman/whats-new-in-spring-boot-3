@@ -1,0 +1,5 @@
+app:
+  title: Welcome to SpringBootShop Tests!
+  services:
+    orders: http://localhost:${wiremock.server.port}
+    items: http://localhost:${wiremock.server.port}

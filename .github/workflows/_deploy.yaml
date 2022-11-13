@@ -1,0 +1,58 @@
+name: 'Build and deploy container image'
+
+on:
+  workflow_call:
+    inputs:
+      native:
+        type: boolean
+        default: false
+        required: false
+        description: Build the app with GraalVM native-image
+      working-directory:
+        type: string
+        default: .
+        required: false
+        description: Working directory
+      module:
+        type: string
+        default: .
+        required: false
+        description: Maven module
+
+env:
+  JAVA_VERSION: 17
+
+jobs:
+  deploy-image:
+    defaults:
+      run:
+        working-directory: ${{ inputs.working-directory }}
+    runs-on: ubuntu-latest
+    steps:
+    - uses: buildpacks/github-actions/setup-pack@v4.4.0
+    - uses: actions/checkout@v3
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+    - uses: actions/setup-java@v3
+      with:
+        distribution: temurin
+        java-version: ${{ env.JAVA_VERSION }}
+        cache: maven
+    - name: Log in to the container registry
+      uses: docker/login-action@v2
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    - name: Build image
+      if: ${{ inputs.native == false }}
+      run: ./mvnw -ntp -B -pl ${{ inputs.module }} spring-boot:build-image -DskipTests -Dspring-boot.build-image.publish=true
+      env:
+        DOCKER_PUBLISH_USERNAME: ${{ github.actor }}
+        DOCKER_PUBLISH_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+    - name: Build image with GraalVM
+      if: ${{ inputs.native == true }}
+      run: ./mvnw -ntp -B -pl ${{ inputs.module }} -Pnative spring-boot:build-image -DskipTests -Dspring-boot.build-image.publish=true
+      env:
+        DOCKER_PUBLISH_USERNAME: ${{ github.actor }}
+        DOCKER_PUBLISH_PASSWORD: ${{ secrets.GITHUB_TOKEN }}

@@ -1,0 +1,42 @@
+apiVersion: opentelemetry.io/v1alpha1
+kind: OpenTelemetryCollector
+metadata:
+  name: otel
+  namespace: wnisb3-otel
+spec:
+  mode: deployment
+  podAnnotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/path: "/metrics"
+    prometheus.io/port: "8889"
+  config: |
+    receivers:
+      otlp:
+        protocols:
+          grpc:
+          http:
+      zipkin:
+
+    processors:
+      batch:
+
+    exporters:
+      logging:
+        logLevel: info
+      zipkin:
+        endpoint: http://tempo-distributor.tempo.svc.cluster.local:9411
+        tls:
+          insecure: true
+      prometheus:
+        endpoint: "0.0.0.0:8889"
+
+    service:
+      pipelines:
+        traces:
+          receivers: [zipkin]
+          processors: [batch]
+          exporters: [zipkin]
+        metrics:
+          receivers: [otlp]
+          processors: [batch]
+          exporters: [prometheus]

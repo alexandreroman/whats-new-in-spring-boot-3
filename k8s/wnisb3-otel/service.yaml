@@ -1,0 +1,38 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: shop
+  namespace: wnisb3-otel
+spec:
+  selector:
+    app.kubernetes.io/part-of: wnisb3-otel
+    app.kubernetes.io/component: shop
+  ports:
+  - port: 8080
+    targetPort: http
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: orders
+  namespace: wnisb3-otel
+spec:
+  selector:
+    app.kubernetes.io/part-of: wnisb3-otel
+    app.kubernetes.io/component: orders
+  ports:
+  - port: 8080
+    targetPort: http
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: items
+  namespace: wnisb3-otel
+spec:
+  selector:
+    app.kubernetes.io/part-of: wnisb3-otel
+    app.kubernetes.io/component: items
+  ports:
+  - port: 8080
+    targetPort: http

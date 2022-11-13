@@ -1,0 +1,27 @@
+name: wnisb3-java17
+
+on:
+  push:
+    branches:
+    - main
+    - testing
+    paths:
+    - java17/**
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: true
+
+jobs:
+  call-test-app:
+    if: always()
+    uses: ./.github/workflows/_test.yaml
+    with:
+      working-directory: java17
+
+  call-deploy-image:
+    needs:
+    - call-test-app
+    uses: ./.github/workflows/_deploy.yaml
+    with:
+      working-directory: java17
