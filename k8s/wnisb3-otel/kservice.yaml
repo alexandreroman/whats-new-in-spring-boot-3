@@ -1,20 +1,13 @@
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: serving.knative.dev/v1
+kind: Service
 metadata:
   name: shop
   namespace: wnisb3-otel
+  labels:
+    app.kubernetes.io/part-of: wnisb3-otel
+    app.kubernetes.io/component: shop
 spec:
-  selector:
-    matchLabels:
-      app.kubernetes.io/part-of: wnisb3-otel
-      app.kubernetes.io/component: shop
   template:
-    metadata:
-      labels:
-        app.kubernetes.io/part-of: wnisb3-otel
-        app.kubernetes.io/component: shop
-      annotations:
-        sidecar.opentelemetry.io/inject: "true"
     spec:
       containers:
       - name: app
@@ -24,12 +17,9 @@ spec:
           value: configtree:/app/config/
         resources:
           requests:
-            memory: "256Mi"
+            memory: 256M
           limits:
-            memory: "256Mi"
-        ports:
-        - containerPort: 8080
-          name: http
+            memory: 256M
         livenessProbe:
           httpGet:
             port: http
@@ -47,23 +37,17 @@ spec:
         configMap:
           name: app
 ---
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: serving.knative.dev/v1
+kind: Service
 metadata:
   name: orders
-  namespace: wnisb3-otel
+  namespace: wnisb3-orders
+  labels:
+    app.kubernetes.io/part-of: wnisb3-otel
+    app.kubernetes.io/component: orders
+    networking.knative.dev/visibility: cluster-local
 spec:
-  selector:
-    matchLabels:
-      app.kubernetes.io/part-of: wnisb3-otel
-      app.kubernetes.io/component: orders
   template:
-    metadata:
-      labels:
-        app.kubernetes.io/part-of: wnisb3-otel
-        app.kubernetes.io/component: orders
-      annotations:
-        sidecar.opentelemetry.io/inject: "true"
     spec:
       containers:
       - name: app
@@ -73,12 +57,9 @@ spec:
           value: configtree:/app/config/
         resources:
           requests:
-            memory: "256Mi"
+            memory: 256M
           limits:
-            memory: "256Mi"
-        ports:
-        - containerPort: 8080
-          name: http
+            memory: 256M
         livenessProbe:
           httpGet:
             port: http
@@ -96,23 +77,17 @@ spec:
         configMap:
           name: app
 ---
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: serving.knative.dev/v1
+kind: Service
 metadata:
   name: items
   namespace: wnisb3-otel
+  labels:
+    app.kubernetes.io/part-of: wnisb3-otel
+    app.kubernetes.io/component: items
+    networking.knative.dev/visibility: cluster-local
 spec:
-  selector:
-    matchLabels:
-      app.kubernetes.io/part-of: wnisb3-otel
-      app.kubernetes.io/component: items
   template:
-    metadata:
-      labels:
-        app.kubernetes.io/part-of: wnisb3-otel
-        app.kubernetes.io/component: items
-      annotations:
-        sidecar.opentelemetry.io/inject: "true"
     spec:
       containers:
       - name: app
@@ -122,12 +97,9 @@ spec:
           value: configtree:/app/config/
         resources:
           requests:
-            memory: "256Mi"
+            memory: 256M
           limits:
-            memory: "256Mi"
-        ports:
-        - containerPort: 8080
-          name: http
+            memory: 256M
         livenessProbe:
           httpGet:
             port: http

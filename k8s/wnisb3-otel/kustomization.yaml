@@ -3,15 +3,16 @@ kind: Kustomization
 namespace: wnisb3-otel
 resources:
 - namespace.yaml
-- deployment.yaml
-- service.yaml
-- ingress.yaml
+- kapp.yaml
+- kservice.yaml
 - otel.yaml
+generatorOptions:
+  disableNameSuffixHash: true
 configMapGenerator:
 - name: app
   literals:
-  - app.services.orders=http://orders:8080
-  - app.services.items=http://items:8080
+  - app.services.orders=http://orders.wnisb3-otel.svc.cluster.local
+  - app.services.items=http://items.wnisb3-otel.svc.cluster.local
   - server.port=8080
   - management.otlp.metrics.export.step=4s
   - management.otlp.metrics.export.url=http://otel-collector:4318/v1/metrics
