@@ -18,6 +18,8 @@ package com.vmware.tanzu.demos.wnisb3.otel.shop;
 
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.observation.Observation;
+import io.micrometer.observation.ObservationRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -43,7 +45,6 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 import static com.vmware.tanzu.demos.wnisb3.otel.shop.FullOrder.toFullOrder;
@@ -135,15 +136,17 @@ class IndexController {
     private final Counter hitCounter;
     private final OrderServiceClient osc;
     private final ItemServiceClient isc;
+    private final ObservationRegistry reg;
 
-    public IndexController(@Qualifier("indexPageHitCounter") Counter hitCounter, OrderServiceClient osc, ItemServiceClient isc) {
+    public IndexController(@Qualifier("indexPageHitCounter") Counter hitCounter, OrderServiceClient osc, ItemServiceClient isc, ObservationRegistry reg) {
         this.hitCounter = hitCounter;
         this.osc = osc;
         this.isc = isc;
+        this.reg = reg;
     }
 
     @GetMapping("/")
-    IndexPage index(@Value("${app.title}") String title) throws ExecutionException, InterruptedException {
+    IndexPage index(@Value("${app.title}") String title) {
         logger.info("Building content for index page");
         hitCounter.increment();
 
@@ -153,36 +156,57 @@ class IndexController {
                 "998d14af-aac1-4082-8194-990a3c24f553"
         );
 
-        final var orders = orderIds.stream().map(this::fetchOrder).
-                filter(Objects::nonNull).collect(Collectors.toUnmodifiableList());
-        final var fullOrders = new ArrayList<FullOrder>(orders.size());
-        for (final var order : orders) {
-            final var items = order.itemIds().stream().map(this::fetchOrderItem).
+        // Rely on Observation API to measure time spent bulding the index page content.
+        final var obs = Observation.start("shop.indexPage", reg);
+        try (final var scope = obs.openScope()) {
+            final var orders = orderIds.stream().map(this::fetchOrder).
                     filter(Objects::nonNull).collect(Collectors.toUnmodifiableList());
-            fullOrders.add(toFullOrder(order, items));
+            final var fullOrders = new ArrayList<FullOrder>(orders.size());
+            for (final var order : orders) {
+                final var items = order.itemIds().stream().map(this::fetchOrderItem).
+                        filter(Objects::nonNull).collect(Collectors.toUnmodifiableList());
+                fullOrders.add(toFullOrder(order, items));
+            }
+            return new IndexPage(title, fullOrders);
+        } catch (Exception e) {
+            obs.error(e);
+            throw e;
+        } finally {
+            obs.stop();
         }
-        return new IndexPage(title, fullOrders);
     }
 
     private Order fetchOrder(String orderId) {
         final var builder = UriComponentsBuilder.newInstance();
-        try {
+
+        final Observation obs = Observation.start("shop.findOrder", reg);
+        obs.lowCardinalityKeyValue("order", orderId);
+        try (final var scope = obs.openScope()) {
             logger.info("Fetching order details: {}", orderId);
             return osc.findOrder(orderId);
         } catch (Exception e) {
             logger.warn("Failed to get order details: {}", orderId, e);
+            obs.error(e);
             return null;
+        } finally {
+            obs.stop();
         }
     }
 
     private OrderItem fetchOrderItem(String itemId) {
         final var builder = UriComponentsBuilder.newInstance();
-        try {
+
+        final Observation obs = Observation.start("shop.findItem", reg);
+        obs.lowCardinalityKeyValue("item", itemId);
+        try (final var scope = obs.openScope()) {
             logger.info("Fetching item details: {}", itemId);
             return isc.findItem(itemId);
         } catch (Exception e) {
             logger.warn("Failed to get item details: {}", itemId, e);
+            obs.error(e);
             return null;
+        } finally {
+            obs.stop();
         }
     }
 }
