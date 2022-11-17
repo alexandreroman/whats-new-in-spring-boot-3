@@ -58,7 +58,7 @@ enum OrderState {
  */
 interface OrderServiceClient {
     @GetExchange("/api/v1/orders/{orderId}")
-    Order findOrder(@PathVariable String orderId);
+    Order findOrder(@PathVariable("orderId") String orderId);
 }
 
 /**
@@ -67,7 +67,7 @@ interface OrderServiceClient {
  */
 interface ItemServiceClient {
     @GetExchange("/api/v1/items/{itemId}")
-    OrderItem findItem(@PathVariable String itemId);
+    OrderItem findItem(@PathVariable("itemId") String itemId);
 }
 
 @SpringBootApplication
