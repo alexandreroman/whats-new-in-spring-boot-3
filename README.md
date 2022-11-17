@@ -22,7 +22,7 @@ In a nutshell, this version brings in these new features:
   the next version of Java EE, aka Jakarta with `jakarta.*` packages
 - and more...
 
-See this video with Josh Long if you want to learn more about
+Check out this video from Josh Long to learn more about
 Spring Boot 3.0 and Spring Framework 6.0:
 
 [![Spring Tips: the road to Spring Boot 3 by Josh Long](https://img.youtube.com/vi/aUm5WZjh8RA/0.jpg)](https://www.youtube.com/watch?v=aUm5WZjh8RA)
@@ -32,7 +32,7 @@ This repository is splitted in modules:
 - [java17](java17): see some of the new language features you can use in your Java apps
 - [native](native): check out how to use GraalVM to compile your Spring Boot app
   as a native process
-- [otel](otel): a microservices-based app featuring OpenTelemetry, Zipkin, Knative,
+- [otel](otel): a microservice-based app featuring OpenTelemetry, Zipkin, Knative,
   GraalVM and tools from the Grafana OSS stack (Tempo, Loki, promtail)
 
 Each module includes some documentation showcasing the new features.
