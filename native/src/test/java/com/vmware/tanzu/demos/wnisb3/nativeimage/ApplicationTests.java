@@ -18,8 +18,10 @@ package com.vmware.tanzu.demos.wnisb3.nativeimage;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootTest
+@ActiveProfiles("test")
 class ApplicationTests {
     @Test
     void contextLoads() {

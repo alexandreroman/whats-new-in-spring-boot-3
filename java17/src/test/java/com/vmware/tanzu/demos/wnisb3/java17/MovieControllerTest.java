@@ -20,13 +20,13 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
-
-import java.util.List;
+import org.springframework.test.context.ActiveProfiles;
 
 import static com.vmware.tanzu.demos.wnisb3.java17.Genre.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@ActiveProfiles("test")
 public class MovieControllerTest {
     @Autowired
     private TestRestTemplate client;

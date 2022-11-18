@@ -3,3 +3,11 @@ app:
   services:
     orders: http://localhost:${wiremock.server.port}
     items: http://localhost:${wiremock.server.port}
+
+management:
+  tracing:
+    enabled: false
+  otlp:
+    metrics:
+      export:
+        enabled: false
