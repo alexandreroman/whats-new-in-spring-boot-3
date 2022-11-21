@@ -156,7 +156,7 @@ class IndexController {
                 "998d14af-aac1-4082-8194-990a3c24f553"
         );
 
-        // Rely on Observation API to measure time spent bulding the index page content.
+        // Rely on Observation API to measure time spent building the index page content.
         final var obs = Observation.start("shop.indexPage", reg);
         try (final var scope = obs.openScope()) {
             final var orders = orderIds.stream().map(this::fetchOrder).
@@ -167,6 +167,8 @@ class IndexController {
                         filter(Objects::nonNull).collect(Collectors.toUnmodifiableList());
                 fullOrders.add(toFullOrder(order, items));
             }
+            // Creating an Observation event will result in the creation of a new metric.
+            obs.event(Observation.Event.of("built"));
             return new IndexPage(title, fullOrders);
         } catch (Exception e) {
             obs.error(e);
