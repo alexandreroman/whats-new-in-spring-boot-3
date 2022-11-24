@@ -7,6 +7,7 @@ on:
     - testing
     paths:
     - otel/shop/**
+    - otel/pom.xml
 
 concurrency:
   group: ${{ github.workflow }}
