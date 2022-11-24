@@ -1,7 +1,7 @@
 # OpenTelemetry support with Spring Boot 3.0
 
 This module highlights the use of [OpenTelemetry](https://opentelemetry.io) through
-[Micrometer](https://micrometer.io) to 
+[Micrometer](https://micrometer.io) with Spring Boot 3.0.
 
 ## How to run this app?
 
@@ -28,7 +28,7 @@ Run these commands to start the app and its modules:
 Tracing is enabled by default: you may want to start Zipkin to collect
 tracing spans (otherwise you may see errors in the logs).
 
-Use this command to start a Zipkin instance (you need a Docker daemon running:
+Use this command to start a Zipkin instance (you need a Docker daemon running):
 
 ```shell
 docker run --rm -p 9411:9411 openzipkin/zipkin:latest
