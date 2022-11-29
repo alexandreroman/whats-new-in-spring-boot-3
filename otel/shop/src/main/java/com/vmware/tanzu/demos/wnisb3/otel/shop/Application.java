@@ -32,6 +32,8 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.client.reactive.ClientHttpConnector;
+import org.springframework.http.client.reactive.JdkClientHttpConnector;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
@@ -41,6 +43,8 @@ import org.springframework.web.service.annotation.GetExchange;
 import org.springframework.web.service.invoker.HttpServiceProxyFactory;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.net.http.HttpClient;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -83,22 +87,32 @@ public class Application {
     }
 
     @Bean
-    OrderServiceClient orderServiceClient(WebClient.Builder clientBuilder, ServiceConf services) {
-        return createServiceClient(clientBuilder, services.orders(), OrderServiceClient.class);
+    OrderServiceClient orderServiceClient(WebClient.Builder clientBuilder, ClientHttpConnector clientHttpConnector, ServiceConf services) {
+        return createServiceClient(clientBuilder, clientHttpConnector, services.orders(), OrderServiceClient.class);
     }
 
     @Bean
-    ItemServiceClient itemServiceClient(WebClient.Builder builder, ServiceConf services) {
-        return createServiceClient(builder, services.items(), ItemServiceClient.class);
+    ItemServiceClient itemServiceClient(WebClient.Builder builder, ClientHttpConnector clientHttpConnector, ServiceConf services) {
+        return createServiceClient(builder, clientHttpConnector, services.items(), ItemServiceClient.class);
+    }
+
+    @Bean
+    JdkClientHttpConnector clientHttpConnector() {
+        final var httpClient = HttpClient.newBuilder()
+                .followRedirects(HttpClient.Redirect.NORMAL)
+                .connectTimeout(Duration.ofSeconds(10))
+                .build();
+        return new JdkClientHttpConnector(httpClient);
     }
 
     /**
      * Create a proxy which implements client HTTP methods defined in the service interface.
      */
-    private <T> T createServiceClient(WebClient.Builder builder, String baseUrl, Class<T> serviceClass) {
+    private <T> T createServiceClient(WebClient.Builder builder, ClientHttpConnector clientHttpConnector, String baseUrl, Class<T> serviceClass) {
         final var client = builder
                 // Set the HTTP User-Agent.
                 .defaultHeader(HttpHeaders.USER_AGENT, appName)
+                .clientConnector(clientHttpConnector)
                 .baseUrl(baseUrl).build();
         final var factory = HttpServiceProxyFactory.builder(WebClientAdapter.forClient(client)).build();
         return factory.createClient(serviceClass);
