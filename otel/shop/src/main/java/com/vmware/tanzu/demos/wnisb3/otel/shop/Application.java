@@ -41,7 +41,6 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.support.WebClientAdapter;
 import org.springframework.web.service.annotation.GetExchange;
 import org.springframework.web.service.invoker.HttpServiceProxyFactory;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.http.HttpClient;
 import java.time.Duration;
@@ -49,7 +48,6 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import static com.vmware.tanzu.demos.wnisb3.otel.shop.FullOrder.toFullOrder;
 
@@ -172,13 +170,13 @@ class IndexController {
 
         // Rely on Observation API to measure time spent building the index page content.
         final var obs = Observation.start("shop.indexPage", reg);
-        try (final var scope = obs.openScope()) {
+        try {
             final var orders = orderIds.stream().map(this::fetchOrder).
-                    filter(Objects::nonNull).collect(Collectors.toUnmodifiableList());
+                    filter(Objects::nonNull).toList();
             final var fullOrders = new ArrayList<FullOrder>(orders.size());
             for (final var order : orders) {
                 final var items = order.itemIds().stream().map(this::fetchOrderItem).
-                        filter(Objects::nonNull).collect(Collectors.toUnmodifiableList());
+                        filter(Objects::nonNull).toList();
                 fullOrders.add(toFullOrder(order, items));
             }
             // Creating an Observation event will result in the creation of a new metric.
@@ -193,11 +191,9 @@ class IndexController {
     }
 
     private Order fetchOrder(String orderId) {
-        final var builder = UriComponentsBuilder.newInstance();
-
         final Observation obs = Observation.start("shop.findOrder", reg);
         obs.lowCardinalityKeyValue("order", orderId);
-        try (final var scope = obs.openScope()) {
+        try {
             logger.info("Fetching order details: {}", orderId);
             return osc.findOrder(orderId);
         } catch (Exception e) {
@@ -210,11 +206,9 @@ class IndexController {
     }
 
     private OrderItem fetchOrderItem(String itemId) {
-        final var builder = UriComponentsBuilder.newInstance();
-
         final Observation obs = Observation.start("shop.findItem", reg);
         obs.lowCardinalityKeyValue("item", itemId);
-        try (final var scope = obs.openScope()) {
+        try {
             logger.info("Fetching item details: {}", itemId);
             return isc.findItem(itemId);
         } catch (Exception e) {
