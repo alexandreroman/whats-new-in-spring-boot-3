@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.0.0-RC2</version>
+        <version>3.0.0</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.vmware.tanzu.demos.wnisb3</groupId>
@@ -89,11 +89,15 @@
             <build>
                 <plugins>
                     <plugin>
+                        <groupId>org.graalvm.buildtools</groupId>
+                        <artifactId>native-maven-plugin</artifactId>
+                    </plugin>
+                    <plugin>
                         <groupId>org.springframework.boot</groupId>
                         <artifactId>spring-boot-maven-plugin</artifactId>
                         <configuration>
                             <image>
-                                <builder>dashaun/java-native-builder-multiarch:7.37.0</builder>
+                                <builder>dashaun/java-native-builder-multiarch:7.41.0</builder>
                             </image>
                         </configuration>
                     </plugin>
