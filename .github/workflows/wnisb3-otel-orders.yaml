@@ -8,6 +8,9 @@ on:
     paths:
     - otel/orders/**
     - otel/pom.xml
+    - .github/workflows/_test.yaml
+    - .github/workflows/_deploy.yaml
+    - .github/workflows/wnisb3-otel-orders.yaml
 
 concurrency:
   group: ${{ github.workflow }}

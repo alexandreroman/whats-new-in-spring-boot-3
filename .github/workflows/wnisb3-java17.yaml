@@ -7,6 +7,9 @@ on:
     - testing
     paths:
     - java17/**
+    - .github/workflows/_test.yaml
+    - .github/workflows/_deploy.yaml
+    - .github/workflows/wnisb3-java17.yaml
 
 concurrency:
   group: ${{ github.workflow }}
