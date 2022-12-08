@@ -1,8 +1,5 @@
 app:
   title: Welcome to SpringBootShop Tests!
-  services:
-    orders: http://localhost:${wiremock.server.port}
-    items: http://localhost:${wiremock.server.port}
 
 management:
   tracing:
@@ -11,3 +8,14 @@ management:
     metrics:
       export:
         enabled: false
+
+spring:
+  cloud:
+    discovery:
+      client:
+        simple:
+          instances:
+            orders:
+            - uri: http://localhost:${wiremock.server.port}
+            items:
+            - uri: http://localhost:${wiremock.server.port}

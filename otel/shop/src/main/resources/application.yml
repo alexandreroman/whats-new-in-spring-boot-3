@@ -30,9 +30,15 @@ logging:
 spring:
   application:
     name: wnisb3-otel-shop
+  cloud:
+    discovery:
+      client:
+        simple:
+          instances:
+            orders:
+            - uri: http://localhost:8081
+            items:
+            - uri: http://localhost:8082
 
 app:
   title: Welcome to SpringBootShop!
-  services:
-    orders: http://localhost:8081
-    items: http://localhost:8082

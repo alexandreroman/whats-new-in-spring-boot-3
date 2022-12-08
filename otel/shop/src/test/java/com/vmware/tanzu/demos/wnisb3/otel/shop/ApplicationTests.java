@@ -23,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
+import org.springframework.http.HttpHeaders;
 import org.springframework.test.context.ActiveProfiles;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
@@ -93,6 +94,10 @@ class ApplicationTests {
 
         final var e = client.getForEntity("/", String.class);
         assertThat(e.getStatusCode().is2xxSuccessful()).isTrue();
+        verify(getRequestedFor(urlEqualTo("/api/v1/orders/e5377e96-c6c6-4f00-bdd1-f36efb6b9b6a"))
+                .withHeader(HttpHeaders.USER_AGENT, equalTo("wnisb3-otel-shop")));
+        verify(getRequestedFor(urlEqualTo("/api/v1/items/item1"))
+                .withHeader(HttpHeaders.USER_AGENT, equalTo("wnisb3-otel-shop")));
 
         final var output = """
                 {
