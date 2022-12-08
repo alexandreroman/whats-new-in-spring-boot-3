@@ -8,6 +8,9 @@ on:
     paths:
     - otel/shop/**
     - otel/pom.xml
+    - .github/workflows/_test.yaml
+    - .github/workflows/_deploy.yaml
+    - .github/workflows/wnisb3-otel-shop.yaml
 
 concurrency:
   group: ${{ github.workflow }}
@@ -28,4 +31,4 @@ jobs:
     with:
       working-directory: otel
       module: shop
-      native: true
+      native: false
