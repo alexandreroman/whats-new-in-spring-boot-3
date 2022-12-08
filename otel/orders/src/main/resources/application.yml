@@ -31,4 +31,4 @@ spring:
   application:
     name: wnisb3-otel-orders
 server:
-  port: 8081
+  port: ${PORT:8081}

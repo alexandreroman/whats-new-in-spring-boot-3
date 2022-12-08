@@ -31,4 +31,4 @@ spring:
   application:
     name: wnisb3-otel-items
 server:
-  port: 8082
+  port: ${PORT:8082}

@@ -27,6 +27,9 @@ logging:
   pattern:
     console: "%clr(%d{HH:mm:ss.SSS}){blue} %clr(%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]){yellow} %clr(:){red} %clr(%m){faint}%n"
 
+server:
+  port: ${PORT:8080}
+
 spring:
   application:
     name: wnisb3-otel-shop
