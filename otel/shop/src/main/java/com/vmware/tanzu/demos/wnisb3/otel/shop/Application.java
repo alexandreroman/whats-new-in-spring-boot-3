@@ -29,11 +29,13 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.web.reactive.function.client.WebClientCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.client.reactive.ClientHttpConnector;
 import org.springframework.http.client.reactive.JdkClientHttpConnector;
+import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
@@ -77,21 +79,22 @@ interface ItemServiceClient {
 @EnableConfigurationProperties
 @ConfigurationPropertiesScan
 public class Application {
-    @Value("${spring.application.name}")
-    private String appName;
-
     public static void main(String[] args) {
         SpringApplication.run(Application.class, args);
     }
 
     @Bean
-    OrderServiceClient orderServiceClient(WebClient.Builder clientBuilder, ClientHttpConnector clientHttpConnector, ServiceConf services) {
-        return createServiceClient(clientBuilder, clientHttpConnector, services.orders(), OrderServiceClient.class);
+    OrderServiceClient orderServiceClient(WebClient.Builder builder, ServiceConf services) {
+        return HttpServiceProxyFactory
+                .builder(WebClientAdapter.forClient(builder.baseUrl(services.orders()).build())).build()
+                .createClient(OrderServiceClient.class);
     }
 
     @Bean
-    ItemServiceClient itemServiceClient(WebClient.Builder builder, ClientHttpConnector clientHttpConnector, ServiceConf services) {
-        return createServiceClient(builder, clientHttpConnector, services.items(), ItemServiceClient.class);
+    ItemServiceClient itemServiceClient(WebClient.Builder builder, ServiceConf services) {
+        return HttpServiceProxyFactory
+                .builder(WebClientAdapter.forClient(builder.baseUrl(services.items()).build())).build()
+                .createClient(ItemServiceClient.class);
     }
 
     @Bean
@@ -102,18 +105,26 @@ public class Application {
                 .build();
         return new JdkClientHttpConnector(httpClient);
     }
+}
 
-    /**
-     * Create a proxy which implements client HTTP methods defined in the service interface.
-     */
-    private <T> T createServiceClient(WebClient.Builder builder, ClientHttpConnector clientHttpConnector, String baseUrl, Class<T> serviceClass) {
-        final var client = builder
-                // Set the HTTP User-Agent.
-                .defaultHeader(HttpHeaders.USER_AGENT, appName)
-                .clientConnector(clientHttpConnector)
-                .baseUrl(baseUrl).build();
-        final var factory = HttpServiceProxyFactory.builder(WebClientAdapter.forClient(client)).build();
-        return factory.createClient(serviceClass);
+@Component
+class CustomWebClientCustomizer implements WebClientCustomizer {
+    private final String appName;
+    private final ClientHttpConnector clientHttpConnector;
+
+    public CustomWebClientCustomizer(@Value("${spring.application.name}")
+                                     String appName,
+                                     ClientHttpConnector clientHttpConnector) {
+        this.appName = appName;
+        this.clientHttpConnector = clientHttpConnector;
+    }
+
+    @Override
+    public void customize(WebClient.Builder builder) {
+        // Set the HTTP User-Agent.
+        builder.defaultHeader(HttpHeaders.USER_AGENT, appName)
+                // Reuse client connector (setting connection timeouts).
+                .clientConnector(clientHttpConnector);
     }
 }
 
