@@ -191,33 +191,29 @@ class IndexController {
     }
 
     private Order fetchOrder(String orderId) {
-        final Observation obs = Observation.start("shop.findOrder", reg);
+        final var obs = Observation.start("shop.findOrder", reg);
         obs.lowCardinalityKeyValue("order", orderId);
+
+        logger.info("Fetching order details: {}", orderId);
         try {
-            logger.info("Fetching order details: {}", orderId);
-            return osc.findOrder(orderId);
+            return obs.observeChecked(() -> osc.findOrder(orderId));
         } catch (Exception e) {
             logger.warn("Failed to get order details: {}", orderId, e);
-            obs.error(e);
-            return null;
-        } finally {
-            obs.stop();
         }
+        return null;
     }
 
     private OrderItem fetchOrderItem(String itemId) {
-        final Observation obs = Observation.start("shop.findItem", reg);
+        final var obs = Observation.start("shop.findItem", reg);
         obs.lowCardinalityKeyValue("item", itemId);
+
+        logger.info("Fetching item details: {}", itemId);
         try {
-            logger.info("Fetching item details: {}", itemId);
-            return isc.findItem(itemId);
+            return obs.observeChecked(() -> isc.findItem(itemId));
         } catch (Exception e) {
             logger.warn("Failed to get item details: {}", itemId, e);
-            obs.error(e);
-            return null;
-        } finally {
-            obs.stop();
         }
+        return null;
     }
 }
 
