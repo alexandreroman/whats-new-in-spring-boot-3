@@ -13,7 +13,6 @@ configMapGenerator:
   literals:
   - app.services.orders=http://orders.wnisb3-otel.svc.cluster.local
   - app.services.items=http://items.wnisb3-otel.svc.cluster.local
-  - server.port=8080
   - management.otlp.metrics.export.step=4s
   - management.otlp.metrics.export.url=http://otel-collector:4318/v1/metrics
   - management.tracing.sampling.probability=1.0
