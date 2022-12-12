@@ -1,0 +1,20 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+- namespace.yaml
+- kapp.yaml
+- kservice.yaml
+- aria.yaml
+generatorOptions:
+  disableNameSuffixHash: true
+configMapGenerator:
+- name: app
+  namespace: wnisb3-aria
+  literals:
+  - app.services.orders=http://orders.wnisb3-aria.svc.cluster.local
+  - app.services.items=http://items.wnisb3-aria.svc.cluster.local
+  - server.port=8080
+  - management.otlp.metrics.export.step=4s
+  - management.otlp.metrics.export.url=http://wavefront-proxy.observability-system:4318/v1/metrics
+  - management.tracing.sampling.probability=1.0
+  - management.zipkin.tracing.endpoint=http://wavefront-proxy.observability-system:9411/api/v2/spans

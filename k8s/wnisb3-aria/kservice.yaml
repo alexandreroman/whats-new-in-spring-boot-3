@@ -1,0 +1,118 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: shop
+  namespace: wnisb3-aria
+  labels:
+    app.kubernetes.io/part-of: wnisb3-aria
+    app.kubernetes.io/component: shop
+spec:
+  template:
+    spec:
+      containers:
+      - name: app
+        image: ghcr.io/alexandreroman/wnisb3-otel-shop:latest
+        env:
+        - name: SPRING_CONFIG_IMPORT
+          value: configtree:/app/config/
+        resources:
+          requests:
+            memory: 256M
+          limits:
+            memory: 256M
+        livenessProbe:
+          httpGet:
+            port: http
+            path: /actuator/health/liveness
+        readinessProbe:
+          httpGet:
+            port: http
+            path: /actuator/health/readiness
+        volumeMounts:
+        - name: config
+          mountPath: /app/config
+          readOnly: true
+      volumes:
+      - name: config
+        configMap:
+          name: app
+---
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: orders
+  namespace: wnisb3-aria
+  labels:
+    app.kubernetes.io/part-of: wnisb3-aria
+    app.kubernetes.io/component: orders
+    networking.knative.dev/visibility: cluster-local
+spec:
+  template:
+    spec:
+      containers:
+      - name: app
+        image: ghcr.io/alexandreroman/wnisb3-otel-orders:latest
+        env:
+        - name: SPRING_CONFIG_IMPORT
+          value: configtree:/app/config/
+        resources:
+          requests:
+            memory: 256M
+          limits:
+            memory: 256M
+        livenessProbe:
+          httpGet:
+            port: http
+            path: /actuator/health/liveness
+        readinessProbe:
+          httpGet:
+            port: http
+            path: /actuator/health/readiness
+        volumeMounts:
+        - name: config
+          mountPath: /app/config
+          readOnly: true
+      volumes:
+      - name: config
+        configMap:
+          name: app
+---
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: items
+  namespace: wnisb3-aria
+  labels:
+    app.kubernetes.io/part-of: wnisb3-aria
+    app.kubernetes.io/component: items
+    networking.knative.dev/visibility: cluster-local
+spec:
+  template:
+    spec:
+      containers:
+      - name: app
+        image: ghcr.io/alexandreroman/wnisb3-otel-items:latest
+        env:
+        - name: SPRING_CONFIG_IMPORT
+          value: configtree:/app/config/
+        resources:
+          requests:
+            memory: 256M
+          limits:
+            memory: 256M
+        livenessProbe:
+          httpGet:
+            port: http
+            path: /actuator/health/liveness
+        readinessProbe:
+          httpGet:
+            port: http
+            path: /actuator/health/readiness
+        volumeMounts:
+        - name: config
+          mountPath: /app/config
+          readOnly: true
+      volumes:
+      - name: config
+        configMap:
+          name: app

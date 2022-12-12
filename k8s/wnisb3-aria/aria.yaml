@@ -1,0 +1,23 @@
+# Need to change YOUR_CLUSTER_NAME and YOUR_WAVEFRONT_URL accordingly
+apiVersion: wavefront.com/v1alpha1
+kind: Wavefront
+metadata:
+  name: wavefront
+  namespace: observability-system
+spec:
+  clusterName: YOUR_CLUSTER_NAME
+  wavefrontUrl: YOUR_WAVEFRONT_URL
+  dataCollection:
+    metrics:
+      enable: false
+  dataExport:
+    wavefrontProxy:
+      enable: true
+      tracing:
+        zipkin:
+          port: 9411
+          applicationName: "zipkin"
+      oltp:
+        grpcPort: 4317
+        httpPort: 4318
+        resourceAttrsOnMetricsIncluded: true
