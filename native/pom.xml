@@ -69,7 +69,7 @@
                         <artifactId>spring-boot-maven-plugin</artifactId>
                         <configuration>
                             <image>
-                                <builder>dashaun/java-native-builder-multiarch:7.41.0</builder>
+                                <builder>dashaun/builder:tiny</builder>
                             </image>
                         </configuration>
                     </plugin>
